@@ -7,7 +7,10 @@
 %define		extras_packdname extras-%{extras_git_commit}
 Summary:	Android platform tools(adb, fastboot)
 Name:		android-tools
-Version:	0.0.1
+# use platform version from git (git describe --tags)
+# core: android-4.2.1_r1.1-281-g98d0789
+# extras: android-cts-4.1_r4-101-g4ff85ad
+Version:	4.2.1
 Release:	0.%{git_date}git%{git_commit}.%{rel}
 Group:		Applications/System
 # The entire source code is ASL 2.0 except fastboot/ which is BSD
