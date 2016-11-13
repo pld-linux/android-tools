@@ -66,7 +66,6 @@ the target phone as adb.
 mv %{packdname}/* .
 
 %patch1 -p1
-cp -p %{SOURCE5} 51-android.rules
 
 %build
 %{__ruby} %{SOURCE2} | tee build.sh
@@ -77,9 +76,10 @@ sh -xe build.sh
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{%{_bindir},%{systemdunitdir},%{_sharedstatedir}/adb}
+install -d $RPM_BUILD_ROOT{%{_bindir},%{systemdunitdir},%{_sharedstatedir}/adb,/lib/udev/rules.d}
 install -p adb/adb fastboot/fastboot libsparse/simg2img libsparse/img2simg $RPM_BUILD_ROOT%{_bindir}
 
+cp -p %{SOURCE5} $RPM_BUILD_ROOT/lib/udev/rules.d/51-android.rules
 cp -p %{SOURCE6} $RPM_BUILD_ROOT%{systemdunitdir}/adb.service
 
 %clean
@@ -96,7 +96,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc adb/OVERVIEW.TXT adb/SERVICES.TXT adb/NOTICE adb/protocol.txt 51-android.rules
+%doc adb/OVERVIEW.TXT adb/SERVICES.TXT adb/NOTICE adb/protocol.txt
 # ASL2.0
 %attr(755,root,root) %{_bindir}/adb
 %attr(755,root,root) %{_bindir}/img2simg
@@ -105,4 +105,5 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/fastboot
 
 %{systemdunitdir}/adb.service
+/lib/udev/rules.d/51-android.rules
 %dir %{_sharedstatedir}/adb
