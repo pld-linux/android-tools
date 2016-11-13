@@ -17,10 +17,10 @@ def compile(sources, cflags)
     
     case ext
     when '.c'
-        cc = 'gcc'
+        cc = '${CC:-gcc}'
     	lang_flags = '-std=gnu11 $CFLAGS $CPPFLAGS'
     when '.cpp', '.cc'
-        cc = 'g++'
+        cc = '${CXX:-g++}'
     	lang_flags = '-std=gnu++14 $CXXFLAGS $CPPFLAGS'
     else
         raise "Unknown extension #{ext}"

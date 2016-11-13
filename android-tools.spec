@@ -70,7 +70,10 @@ cp -p %{SOURCE5} 51-android.rules
 
 %build
 %{__ruby} %{SOURCE2} | tee build.sh
-PKGVER=%{git_commit} sh -xe build.sh
+PKGVER=%{git_commit} \
+CC="%{__cc}" \
+CXX="%{__cxx}" \
+sh -xe build.sh
 
 %install
 rm -rf $RPM_BUILD_ROOT
