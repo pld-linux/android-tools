@@ -139,7 +139,7 @@ fastbootfiles = %w(
   usb_linux.cpp
   util_linux.cpp
 )
-libfastboot = compile(expand('fastboot', fastbootfiles), '-DFASTBOOT_REVISION=\"$PKGVER\" -D_GNU_SOURCE -Iadb -Iinclude -Imkbootimg -Ibase/include -Ilibsparse/include -I../extras/ext4_utils -I../extras/f2fs_utils')
+libfastboot = compile(expand('fastboot', fastbootfiles), '-DFASTBOOT_REVISION=\"$PKGVER\" -D_GNU_SOURCE -Iadb -Iinclude -Imkbootimg -Ibase/include -Ilibsparse/include -Iextras/ext4_utils -Iextras/f2fs_utils')
 
 sparsefiles = %w(
   backed_block.c
@@ -174,7 +174,7 @@ ext4files = %w(
   crc16.c
   ext4_sb.c
 )
-libext4 = compile(expand('../extras/ext4_utils', ext4files), '-Ilibsparse/include -Iinclude')
+libext4 = compile(expand('extras/ext4_utils', ext4files), '-Ilibsparse/include -Iinclude')
 
 link('fastboot/fastboot', libsparse + libzip + liblog + libutil + libcutils + libbase + libext4 + libfastboot + libadbsh + libadbd, '-lpthread -lselinux -lz -lcrypto -lutil')
 
