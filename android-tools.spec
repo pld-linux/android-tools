@@ -1,4 +1,4 @@
-%define		rel	1
+%define		rel	2
 %define		git_date 20160327
 %define		git_commit 3761365735de
 %define		packdname core-%{git_commit}
