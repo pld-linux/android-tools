@@ -1,52 +1,40 @@
-%define		rel	2
-%define		git_date 20160327
-%define		git_commit 3761365735de
-%define		packdname core-%{git_commit}
-%define		extras_git_commit 7f5999a
-%define		extras_packdname extras-%{extras_git_commit}
-Summary:	Android platform tools(adb, fastboot)
+Summary:	Android platform tools
 Name:		android-tools
-# use platform version from git (git describe --tags)
-# core: android-6.0.1_r21
-# extras: android-6.0.1_r68
-Version:	6.0.1
-Release:	0.%{git_date}git%{git_commit}.%{rel}
+Version:	33.0.3p1
+Release:	1
+# The entire source code is ASL 2.0 except boringssl which is BSD
+License:	ASL 2.0, BSD
 Group:		Applications/System
-# The entire source code is ASL 2.0 except fastboot/ which is BSD
-License:	ASL 2.0 and (ASL 2.0 and BSD)
-#  using git archive since upstream hasn't created tarballs.
-#  git archive --format=tar --prefix=%%{packdname}/ %%{git_commit} adb fastboot libzipfile libcutils libmincrypt libsparse mkbootimg include/cutils include/zipfile include/mincrypt include/utils include/private | xz  > %%{packdname}.tar.xz
-#  https://android.googlesource.com/platform/system/core.git
-#  git archive --format=tar --prefix=extras/ %%{extras_git_commit} ext4_utils f2fs_utils | xz  > %%{extras_packdname}.tar.xz
-#  https://android.googlesource.com/platform/system/extras.git
-Source0:	http://pkgs.fedoraproject.org/repo/pkgs/android-tools/%{packdname}.tar.xz/bdccaa042b73d1f5a29630c69ae5df26/%{packdname}.tar.xz
-# Source0-md5:	bdccaa042b73d1f5a29630c69ae5df26
-Source1:	http://pkgs.fedoraproject.org/repo/pkgs/android-tools/%{extras_packdname}.tar.xz/2cd5ea576fdf35f5e9ee1c208f6d9fa5/%{extras_packdname}.tar.xz
-# Source1-md5:	2cd5ea576fdf35f5e9ee1c208f6d9fa5
-Source2:	generate_build.rb
-Source5:	51-android.rules
-Source6:	adb.service
-Patch1:		0001-Add-string-h.patch
+Source0:	https://github.com/nmeum/android-tools/releases/download/%{version}/%{name}-%{version}.tar.xz
+# Source0-md5:	d0474aac5d7ca6e02906705a5c9307ac
+Source1:	51-android.rules
+Source2:	adb.service
 URL:		http://developer.android.com/guide/developing/tools/
-BuildRequires:	f2fs-tools
+BuildRequires:	cmake >= 3.12.0
+BuildRequires:	golang
 BuildRequires:	gtest-devel
-BuildRequires:	libselinux-devel
-BuildRequires:	openssl-devel
-BuildRequires:	rpmbuild(macros) >= 1.671
-BuildRequires:	ruby
-BuildRequires:	systemd-devel
+BuildRequires:	libbrotli-devel
+BuildRequires:	libstdc++-devel
+BuildRequires:	libusb-devel
+BuildRequires:	lz4-devel
+BuildRequires:	pcre2-8-devel
+BuildRequires:	perl-base
+BuildRequires:	protobuf-devel
+BuildRequires:	rpm-build >= 4.6
+BuildRequires:	rpmbuild(macros) >= 1.605
 BuildRequires:	tar >= 1:1.22
 BuildRequires:	xz
 BuildRequires:	zlib-devel
+BuildRequires:	zstd-devel
 Requires:	systemd-units >= 38
-Provides:	adb
-Provides:	fastboot
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
 The Android Debug Bridge (ADB) is used to:
+
 - keep track of all Android devices and emulators instances connected
   to or running on a given host developer machine
+
 - implement various control commands (e.g. "adb shell", "adb pull",
   etc.) for the benefit of clients (command-line users, or helper
   programs like DDMS). These commands are what is called a 'service' in
@@ -61,26 +49,45 @@ conjunction with firmware on the phone to read and write the flash
 partitions. It needs the same USB device setup between the host and
 the target phone as adb.
 
-%prep
-%setup -qc -a1
-mv %{packdname}/* .
+%package -n bash-completion-android-tools
+Summary:	bash-completion for android-tools
+Group:		Applications/Shells
+Requires:	%{name} = %{version}-%{release}
+Requires:	bash-completion >= 1:2.0
+BuildArch:	noarch
 
-%patch1 -p1
+%description -n bash-completion-android-tools
+This package provides bash-completion for android-tools.
+
+%prep
+%setup -q
+
+%{__sed} -i -e '1 s,#!.*env python3,#!%{__python3},' \
+	vendor/mkbootimg/mkbootimg.py \
+	vendor/mkbootimg/unpack_bootimg.py \
+	vendor/avb/avbtool.py \
+	vendor/mkbootimg/repack_bootimg.py \
+	vendor/libufdt/utils/src/mkdtboimg.py
 
 %build
-%{__ruby} %{SOURCE2} | tee build.sh
-PKGVER=%{git_commit} \
-CC="%{__cc}" \
-CXX="%{__cxx}" \
-sh -xe build.sh
+export GO111MODULE=off
+install -d build
+cd build
+%cmake .. \
+	-DBUILD_SHARED_LIBS:BOOL=OFF
+
+%{__make}
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{%{_bindir},%{systemdunitdir},%{_sharedstatedir}/adb,/lib/udev/rules.d}
-install -p adb/adb fastboot/fastboot libsparse/simg2img libsparse/img2simg $RPM_BUILD_ROOT%{_bindir}
 
-cp -p %{SOURCE5} $RPM_BUILD_ROOT/lib/udev/rules.d/51-android.rules
-cp -p %{SOURCE6} $RPM_BUILD_ROOT%{systemdunitdir}/adb.service
+install -d $RPM_BUILD_ROOT{%{systemdunitdir},/var/lib/adb,/lib/udev/rules.d}
+
+%{__make} -C build install \
+	DESTDIR=$RPM_BUILD_ROOT
+
+cp -p %{SOURCE1} $RPM_BUILD_ROOT/lib/udev/rules.d/51-android.rules
+cp -p %{SOURCE2} $RPM_BUILD_ROOT%{systemdunitdir}/adb.service
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -96,14 +103,37 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc adb/OVERVIEW.TXT adb/SERVICES.TXT adb/NOTICE adb/protocol.txt
-# ASL2.0
+%doc vendor/adb/{OVERVIEW.TXT,SERVICES.TXT,NOTICE,protocol.txt}
 %attr(755,root,root) %{_bindir}/adb
-%attr(755,root,root) %{_bindir}/img2simg
+%attr(755,root,root) %{_bindir}/avbtool
+%attr(755,root,root) %{_bindir}/mke2fs.android
 %attr(755,root,root) %{_bindir}/simg2img
-# ASL2.0 and BSD.
+%attr(755,root,root) %{_bindir}/img2simg
 %attr(755,root,root) %{_bindir}/fastboot
-
-%{systemdunitdir}/adb.service
+%attr(755,root,root) %{_bindir}/append2simg
+%attr(755,root,root) %{_bindir}/e2fsdroid
+%attr(755,root,root) %{_bindir}/ext2simg
+%attr(755,root,root) %{_bindir}/lpadd
+%attr(755,root,root) %{_bindir}/lpdump
+%attr(755,root,root) %{_bindir}/lpflash
+%attr(755,root,root) %{_bindir}/lpmake
+%attr(755,root,root) %{_bindir}/lpunpack
+%attr(755,root,root) %{_bindir}/mkbootimg
+%attr(755,root,root) %{_bindir}/mkdtboimg
+%attr(755,root,root) %{_bindir}/repack_bootimg
+%attr(755,root,root) %{_bindir}/unpack_bootimg
 /lib/udev/rules.d/51-android.rules
-%dir %{_sharedstatedir}/adb
+%{systemdunitdir}/adb.service
+%dir %{_datadir}/android-tools
+%dir %{_datadir}/android-tools/completions
+%{_datadir}/android-tools/completions/adb
+%{_datadir}/android-tools/completions/fastboot
+%dir %{_datadir}/android-tools/mkbootimg
+%{_datadir}/android-tools/mkbootimg/gki/generate_gki_certificate.py
+%{_datadir}/android-tools/mkbootimg/mkbootimg.py
+%dir /var/lib/adb
+
+%files -n bash-completion-android-tools
+%defattr(644,root,root,755)
+%{bash_compdir}/adb
+%{bash_compdir}/fastboot
