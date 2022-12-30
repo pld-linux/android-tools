@@ -1,7 +1,7 @@
 Summary:	Android platform tools
 Name:		android-tools
 Version:	33.0.3p1
-Release:	1
+Release:	2
 # The entire source code is ASL 2.0 except boringssl which is BSD
 License:	ASL 2.0, BSD
 Group:		Applications/System
@@ -129,8 +129,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/android-tools/completions/adb
 %{_datadir}/android-tools/completions/fastboot
 %dir %{_datadir}/android-tools/mkbootimg
-%{_datadir}/android-tools/mkbootimg/gki/generate_gki_certificate.py
 %{_datadir}/android-tools/mkbootimg/mkbootimg.py
+%dir %{_datadir}/android-tools/mkbootimg/gki
+%{_datadir}/android-tools/mkbootimg/gki/generate_gki_certificate.py
 %dir /var/lib/adb
 
 %files -n bash-completion-android-tools
