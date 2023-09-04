@@ -1,12 +1,12 @@
 Summary:	Android platform tools
 Name:		android-tools
-Version:	34.0.1
+Version:	34.0.4
 Release:	1
 # The entire source code is ASL 2.0 except boringssl which is BSD
 License:	ASL 2.0, BSD
 Group:		Applications/System
 Source0:	https://github.com/nmeum/android-tools/releases/download/%{version}/%{name}-%{version}.tar.xz
-# Source0-md5:	7941367b27be415136628d957e09f87b
+# Source0-md5:	ee4db50a0fbff671040868cb99322567
 Source1:	51-android.rules
 Source2:	adb.service
 URL:		http://developer.android.com/guide/developing/tools/
