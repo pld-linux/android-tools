@@ -1,12 +1,12 @@
 Summary:	Android platform tools
 Name:		android-tools
-Version:	34.0.4
+Version:	34.0.5
 Release:	1
 # The entire source code is ASL 2.0 except boringssl which is BSD
 License:	ASL 2.0, BSD
 Group:		Applications/System
 Source0:	https://github.com/nmeum/android-tools/releases/download/%{version}/%{name}-%{version}.tar.xz
-# Source0-md5:	ee4db50a0fbff671040868cb99322567
+# Source0-md5:	8faca7116e885e6a225791b284cbce2e
 Source1:	51-android.rules
 Source2:	adb.service
 URL:		http://developer.android.com/guide/developing/tools/
@@ -118,9 +118,11 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/lpflash
 %attr(755,root,root) %{_bindir}/lpmake
 %attr(755,root,root) %{_bindir}/lpunpack
+%attr(755,root,root) %{_bindir}/make_f2fs
 %attr(755,root,root) %{_bindir}/mkbootimg
 %attr(755,root,root) %{_bindir}/mkdtboimg
 %attr(755,root,root) %{_bindir}/repack_bootimg
+%attr(755,root,root) %{_bindir}/sload_f2fs
 %attr(755,root,root) %{_bindir}/unpack_bootimg
 /lib/udev/rules.d/51-android.rules
 %{systemdunitdir}/adb.service
