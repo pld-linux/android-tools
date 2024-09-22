@@ -1,13 +1,18 @@
+#
+# Conditional build:
+%bcond_with	system_libusb	# system libusb library (ssplus support required)
+
 Summary:	Android platform tools
 Summary(pl.UTF-8):	Narzędzia dla platformy Android
 Name:		android-tools
-Version:	35.0.1
+Version:	35.0.2
 Release:	1
 # The entire source code is ASL 2.0 except boringssl which is BSD
 License:	ASL 2.0, BSD
 Group:		Applications/System
+#Source0Download: https://github.com/nmeum/android-tools/releases
 Source0:	https://github.com/nmeum/android-tools/releases/download/%{version}/%{name}-%{version}.tar.xz
-# Source0-md5:	8e45c1441ea36ae6a744cdcd94f4affa
+# Source0-md5:	cc05807cb167d7fc8842df82aa3d4620
 Source1:	51-android.rules
 Source2:	adb.service
 URL:		http://developer.android.com/guide/developing/tools/
@@ -15,8 +20,9 @@ BuildRequires:	cmake >= 3.12.0
 BuildRequires:	golang
 BuildRequires:	gtest-devel
 BuildRequires:	libbrotli-devel
+BuildRequires:	libfmt-devel
 BuildRequires:	libstdc++-devel
-BuildRequires:	libusb-devel
+%{?with_system_libusb:BuildRequires:	libusb-devel}
 BuildRequires:	lz4-devel
 BuildRequires:	pcre2-8-devel
 BuildRequires:	perl-base
@@ -24,6 +30,7 @@ BuildRequires:	protobuf-devel
 BuildRequires:	rpm-build >= 4.6
 BuildRequires:	rpmbuild(macros) >= 1.605
 BuildRequires:	tar >= 1:1.22
+BuildRequires:	udev-devel
 BuildRequires:	xz
 BuildRequires:	zlib-devel
 BuildRequires:	zstd-devel
@@ -79,18 +86,23 @@ android-tools w powłoce bash.
 %prep
 %setup -q
 
-%{__sed} -i -e '1 s,#!.*env python3,#!%{__python3},' \
-	vendor/mkbootimg/mkbootimg.py \
-	vendor/mkbootimg/unpack_bootimg.py \
+%{__sed} -i -e '1 s,/usr/bin/env python3,%{__python3},' \
 	vendor/avb/avbtool.py \
+	vendor/libufdt/utils/src/mkdtboimg.py \
+	vendor/mkbootimg/mkbootimg.py \
 	vendor/mkbootimg/repack_bootimg.py \
-	vendor/libufdt/utils/src/mkdtboimg.py
+	vendor/mkbootimg/unpack_bootimg.py
+
+# don't package empty dir
+rmdir vendor/adb/docs/dev/adb_wifi_assets
 
 %build
 export GO111MODULE=off
 install -d build
 cd build
 %cmake .. \
+	%{!?with_system_libusb:-DANDROID_TOOLS_USE_BUNDLED_LIBUSB:BOOL=ON} \
+	-DANDROID_TOOLS_LIBUSB_ENABLE_UDEV:BOOL=ON \
 	-DBUILD_SHARED_LIBS:BOOL=OFF
 
 %{__make}
@@ -119,7 +131,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc vendor/adb/{OVERVIEW.TXT,SERVICES.TXT,NOTICE,protocol.txt}
+%doc vendor/adb/{NOTICE,README.md} vendor/adb/docs/dev
 %attr(755,root,root) %{_bindir}/adb
 %attr(755,root,root) %{_bindir}/avbtool
 %attr(755,root,root) %{_bindir}/mke2fs.android
@@ -151,6 +163,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_datadir}/android-tools/mkbootimg/gki
 %{_datadir}/android-tools/mkbootimg/gki/generate_gki_certificate.py
 %dir /var/lib/adb
+%{_mandir}/man1/adb.1*
 
 %files -n bash-completion-android-tools
 %defattr(644,root,root,755)
