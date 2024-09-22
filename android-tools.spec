@@ -1,4 +1,5 @@
 Summary:	Android platform tools
+Summary(pl.UTF-8):	Narzędzia dla platformy Android
 Name:		android-tools
 Version:	35.0.1
 Release:	1
@@ -43,14 +44,26 @@ The Android Debug Bridge (ADB) is used to:
 Fastboot is used to manipulate the flash partitions of the Android
 phone. It can also boot the phone using a kernel image or root
 filesystem image which reside on the host machine rather than in the
-phone flash. In order to use it, it is important to understand the
-flash partition layout for the phone. The fastboot program works in
-conjunction with firmware on the phone to read and write the flash
-partitions. It needs the same USB device setup between the host and
-the target phone as adb.
+phone flash.
+
+%description -l pl.UTF-8
+ADB (Android Debug Bridge - mostek diagnostyczny Android) służy do:
+- śledzenia wszystkich instancji urządzeń i emulatorów Androida
+  podłączonych lub uruchomionych na danej maszynie programisty
+
+- implementowania różnych poleceń sterujących (np. "adb shell", "adb
+  pull" itp.) do wykorzystania przez klientów (użytkowników linii
+  poleceń, programów pomocniczych typu DDMS). Polecenia te są potem
+  nazywane "usługami" w ADB.
+
+Fastboot służy do operacji na partycjach flash telefonów Android. Może
+także uruchomić telefon przy użyciu obrazu jądra lub obrazu głównego
+systemu plików obecnego na maszynie programisty zamiast w pamięci
+flash telefonu.
 
 %package -n bash-completion-android-tools
 Summary:	bash-completion for android-tools
+Summary(pl.UTF-8):	Bashowe dopełnianie poleceń android-tools
 Group:		Applications/Shells
 Requires:	%{name} = %{version}-%{release}
 Requires:	bash-completion >= 1:2.0
@@ -58,6 +71,10 @@ BuildArch:	noarch
 
 %description -n bash-completion-android-tools
 This package provides bash-completion for android-tools.
+
+%description -n bash-completion-android-tools -l pl.UTF-8
+Ten pakiet zapewnia dopełnianie poleceń narzędzi z pakietu
+android-tools w powłoce bash.
 
 %prep
 %setup -q
@@ -80,7 +97,6 @@ cd build
 
 %install
 rm -rf $RPM_BUILD_ROOT
-
 install -d $RPM_BUILD_ROOT{%{systemdunitdir},/var/lib/adb,/lib/udev/rules.d}
 
 %{__make} -C build install \
