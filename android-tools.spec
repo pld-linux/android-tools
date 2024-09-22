@@ -1,7 +1,11 @@
 #
 # Conditional build:
 %bcond_with	system_libusb	# system libusb library (ssplus support required)
+%bcond_with	sse2		# SSE2 instructions
 
+%ifarch %{x8664} x32 pentium4
+%define	with_sse2	1
+%endif
 Summary:	Android platform tools
 Summary(pl.UTF-8):	Narzędzia dla platformy Android
 Name:		android-tools
@@ -34,6 +38,9 @@ BuildRequires:	udev-devel
 BuildRequires:	xz
 BuildRequires:	zlib-devel
 BuildRequires:	zstd-devel
+%ifarch %{ix86}
+Requires:	cpuinfo(sse2)
+%endif
 Requires:	systemd-units >= 38
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -100,10 +107,17 @@ rmdir vendor/adb/docs/dev/adb_wifi_assets
 export GO111MODULE=off
 install -d build
 cd build
+%ifarch %{ix86}
+%if %{with sse2}
+CFLAGS="%{rpmcflags} -msse2"
+CXXFLAGS="%{rpmcxxflags} -msse2"
+%endif
+%endif
 %cmake .. \
 	%{!?with_system_libusb:-DANDROID_TOOLS_USE_BUNDLED_LIBUSB:BOOL=ON} \
 	-DANDROID_TOOLS_LIBUSB_ENABLE_UDEV:BOOL=ON \
-	-DBUILD_SHARED_LIBS:BOOL=OFF
+	-DBUILD_SHARED_LIBS:BOOL=OFF \
+	%{!?with_sse2:-DOPENSSL_NO_ASM:BOOL=ON}
 
 %{__make}
 
