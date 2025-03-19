@@ -1,6 +1,6 @@
 #
 # Conditional build:
-%bcond_with	system_libusb	# system libusb library (ssplus support required)
+%bcond_without	system_libusb	# system libusb library (ssplus support required)
 %bcond_with	sse2		# SSE2 instructions
 
 %ifarch %{x8664} x32 pentium4
@@ -26,7 +26,7 @@ BuildRequires:	gtest-devel
 BuildRequires:	libbrotli-devel
 BuildRequires:	libfmt-devel
 BuildRequires:	libstdc++-devel
-%{?with_system_libusb:BuildRequires:	libusb-devel}
+%{?with_system_libusb:BuildRequires:	libusb-devel >= 1.0.28}
 BuildRequires:	lz4-devel
 BuildRequires:	pcre2-8-devel
 BuildRequires:	perl-base
@@ -41,6 +41,7 @@ BuildRequires:	zstd-devel
 %ifarch %{ix86}
 Requires:	cpuinfo(sse2)
 %endif
+%{?with_system_libusb:Requires:	libusb >= 1.0.28}
 Requires:	systemd-units >= 38
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
