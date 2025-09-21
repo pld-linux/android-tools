@@ -10,7 +10,7 @@ Summary:	Android platform tools
 Summary(pl.UTF-8):	Narzędzia dla platformy Android
 Name:		android-tools
 Version:	35.0.2
-Release:	1
+Release:	2
 # The entire source code is ASL 2.0 except boringssl which is BSD
 License:	ASL 2.0, BSD
 Group:		Applications/System
