@@ -32,7 +32,7 @@ BuildRequires:	pcre2-8-devel
 BuildRequires:	perl-base
 BuildRequires:	protobuf-devel
 BuildRequires:	rpm-build >= 4.6
-BuildRequires:	rpmbuild(macros) >= 1.605
+BuildRequires:	rpmbuild(macros) >= 2.009
 BuildRequires:	tar >= 1:1.22
 BuildRequires:	udev-devel
 BuildRequires:	xz
@@ -43,6 +43,7 @@ Requires:	cpuinfo(sse2)
 %endif
 %{?with_system_libusb:Requires:	libusb >= 1.0.28}
 Requires:	systemd-units >= 38
+ExclusiveArch:	%{go_arches}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
