@@ -9,14 +9,14 @@
 Summary:	Android platform tools
 Summary(pl.UTF-8):	Narzędzia dla platformy Android
 Name:		android-tools
-Version:	36.0.1
+Version:	37.0.0
 Release:	1
 # The entire source code is ASL 2.0 except boringssl which is BSD
 License:	ASL 2.0, BSD
 Group:		Applications/System
 #Source0Download: https://github.com/nmeum/android-tools/releases
 Source0:	https://github.com/nmeum/android-tools/releases/download/%{version}/%{name}-%{version}.tar.xz
-# Source0-md5:	b82fe703a2d3a7156d855fb68142935e
+# Source0-md5:	df4d303a60f2cd6bb6cf2bfbc2a5a590
 Source1:	51-android.rules
 Source2:	adb.service
 URL:		http://developer.android.com/guide/developing/tools/
@@ -91,6 +91,20 @@ This package provides bash-completion for android-tools.
 %description -n bash-completion-android-tools -l pl.UTF-8
 Ten pakiet zapewnia dopełnianie poleceń narzędzi z pakietu
 android-tools w powłoce bash.
+
+%package -n zsh-completion-android-tools
+Summary:	zsh completion for android-tools
+Summary(pl.UTF-8):	Dopełnianie poleceń android-tools w powłoce zsh
+Group:		Applications/Shells
+Requires:	%{name} = %{version}-%{release}
+BuildArch:	noarch
+
+%description -n zsh-completion-android-tools
+This package provides zsh completion for android-tools.
+
+%description -n zsh-completion-android-tools -l pl.UTF-8
+Ten pakiet zapewnia dopełnianie poleceń narzędzi z pakietu
+android-tools w powłoce zsh.
 
 %prep
 %setup -q
@@ -185,3 +199,8 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %{bash_compdir}/adb
 %{bash_compdir}/fastboot
+
+%files -n zsh-completion-android-tools
+%defattr(644,root,root,755)
+%{zsh_compdir}/_adb
+%{zsh_compdir}/_fastboot
